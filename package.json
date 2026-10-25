@@ -1,0 +1,14 @@
+{
+  "name": "xiangqi-online",
+  "version": "1.0.0",
+  "private": true,
+  "description": "中国象棋联机对战 · Cloudflare Workers + Durable Objects",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "wrangler": "latest"
+  }
+}

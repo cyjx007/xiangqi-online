@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>中国象棋 · 双人对弈</title>
+<style>
+  :root{
+    --bg:#14171c;
+    --text:#ece6da;
+    --muted:#98a2b1;
+    --gold:#d9a441;
+  }
+  *{box-sizing:border-box}
+  html,body{min-height:100%}
+  body{
+    margin:0;
+    padding:34px 20px 42px;
+    background:
+      radial-gradient(1100px 700px at 50% -10%, #2b323c 0%, rgba(20,23,28,0) 62%),
+      radial-gradient(800px 600px at 100% 100%, #23262c 0%, rgba(20,23,28,0) 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:"PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+  }
+  .app{width:min(1000px,100%);}
+  .head{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:18px;
+    flex-wrap:wrap;
+    margin-bottom:22px;
+  }
+  .head h1{
+    margin:0;
+    font-family:"KaiTi","STKaiti","SimSun",serif;
+    font-size:36px;
+    font-weight:700;
+    letter-spacing:.18em;
+    color:#f0dcb4;
+    text-shadow:0 2px 18px rgba(217,164,65,.18);
+  }
+  .head p{
+    margin:7px 0 0;
+    color:var(--muted);
+    font-size:13px;
+    letter-spacing:.14em;
+  }
+  .tabs{
+    display:flex;
+    gap:6px;
+    padding:4px;
+    border-radius:12px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.07);
+  }
+  .tab{
+    flex:none;
+    padding:8px 16px;
+    border:0;
+    border-radius:9px;
+    background:transparent;
+    font-size:13px;
+    letter-spacing:.06em;
+    color:var(--muted);
+  }
+  .tab:hover:not(:disabled){background:rgba(217,164,65,.1);border-color:transparent;}
+  .tab.active{
+    background:linear-gradient(180deg,rgba(217,164,65,.28),rgba(217,164,65,.14));
+    color:#f4dfb7;
+    box-shadow:inset 0 0 0 1px rgba(217,164,65,.4);
+  }
+  .tab:disabled{opacity:.4;cursor:not-allowed;}
+  .mode-note{
+    margin:-8px 0 20px;
+    font-size:12px;
+    line-height:1.6;
+    color:#d09a52;
+  }
+  .game{display:flex;gap:26px;align-items:stretch;}
+  .board-wrap{
+    flex:0 0 auto;
+    width:min(596px,100%);
+    padding:11px;
+    border-radius:20px;
+    background:linear-gradient(160deg,#3b3126,#241f19 60%);
+    box-shadow:0 30px 70px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,220,160,.09);
+  }
+  #board{display:block;width:100%;height:auto;border-radius:12px;touch-action:manipulation;}
+  .panel{
+    flex:1 1 320px;
+    min-width:280px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .card{
+    background:linear-gradient(180deg,#252b35,#1e232b);
+    border:1px solid rgba(255,255,255,.07);
+    border-radius:16px;
+    padding:16px 18px;
+    box-shadow:0 10px 30px rgba(0,0,0,.25);
+  }
+  .turn-line{display:flex;align-items:center;gap:10px;}
+  .dot{width:14px;height:14px;border-radius:50%;flex:none;transition:background .2s,box-shadow .2s;}
+  .dot.red{background:#e2503f;box-shadow:0 0 14px rgba(226,80,63,.85);}
+  .dot.black{background:#0d0f13;box-shadow:inset 0 0 0 2px #aab4c3, 0 0 12px rgba(170,180,195,.5);}
+  .turn-text{font-size:19px;font-weight:600;letter-spacing:.06em;}
+  .turn-text.red{color:#ff9f8e;}
+  .turn-text.black{color:#dfe6f0;}
+  .hint{margin:10px 0 0;font-size:13px;color:var(--muted);line-height:1.6;}
+  .hint.danger{color:#ff8d7c;font-weight:600;}
+  .hint.over{color:#e7c377;font-weight:600;}
+  .actions{display:flex;gap:10px;}
+  button{
+    flex:1;
+    appearance:none;
+    padding:11px 14px;
+    border-radius:11px;
+    border:1px solid rgba(255,255,255,.13);
+    background:rgba(255,255,255,.045);
+    color:var(--text);
+    font:inherit;
+    font-size:14px;
+    letter-spacing:.06em;
+    cursor:pointer;
+    transition:background .18s,border-color .18s,transform .1s,opacity .18s;
+  }
+  button:hover:not(:disabled){background:rgba(217,164,65,.14);border-color:rgba(217,164,65,.55);}
+  button:active:not(:disabled){transform:translateY(1px);}
+  button:disabled{opacity:.35;cursor:not-allowed;}
+  button.primary{
+    background:linear-gradient(180deg,#c08a2e,#9a6a1e);
+    border-color:#d9a441;
+    color:#1d1508;
+    font-weight:600;
+  }
+  button.primary:hover:not(:disabled){background:linear-gradient(180deg,#d9a441,#b07a26);}
+  button.small{flex:none;padding:5px 10px;border-radius:8px;font-size:12px;}
+  .wide{flex:none;width:100%;}
+  .online-card{padding:14px 16px;}
+  .online-title{font-size:11px;letter-spacing:.16em;color:#8d98a7;margin-bottom:10px;}
+  .join-row{display:flex;gap:8px;}
+  .join-row button{flex:0 0 auto;min-width:76px;}
+  #roomInput{
+    flex:1;
+    min-width:0;
+    padding:10px 12px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,.13);
+    background:rgba(0,0,0,.26);
+    color:#f2dcae;
+    font:inherit;
+    font-size:16px;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    outline:none;
+    transition:border-color .18s,background .18s;
+  }
+  #roomInput::placeholder{color:#66707d;font-size:13px;letter-spacing:.06em;text-transform:none;}
+  #roomInput:focus{border-color:rgba(217,164,65,.6);background:rgba(0,0,0,.36);}
+  .setup-divider{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:10px 0;
+    color:#68717e;
+    font-size:11px;
+    letter-spacing:.1em;
+  }
+  .setup-divider::before,.setup-divider::after{content:"";height:1px;flex:1;background:rgba(255,255,255,.08);}
+  .online-msg{min-height:1.3em;margin:9px 0 0;font-size:12px;color:var(--muted);line-height:1.55;}
+  .online-msg.danger{color:#ff8d7c;}
+  .room-line{display:flex;align-items:center;gap:9px;margin-bottom:10px;}
+  .room-line .label{font-size:11px;color:var(--muted);letter-spacing:.1em;white-space:nowrap;}
+  .room-code{
+    font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+    font-size:21px;
+    font-weight:700;
+    letter-spacing:.2em;
+    color:#f0d49b;
+  }
+  .copy-btn{margin-left:auto;}
+  .conn-line{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-bottom:10px;}
+  .conn-dot{width:8px;height:8px;border-radius:50%;background:#6f7a89;flex:none;}
+  .conn-dot.on{background:#4cc38a;box-shadow:0 0 8px rgba(76,195,138,.7);}
+  .conn-dot.wait{background:#d9a441;animation:pulse 1.2s infinite;}
+  @keyframes pulse{50%{opacity:.3}}
+  .seats{display:flex;flex-direction:column;gap:6px;margin-bottom:8px;}
+  .seat{display:flex;align-items:center;gap:8px;font-size:13px;padding:6px 9px;border-radius:9px;background:rgba(255,255,255,.035);}
+  .seat-dot{width:10px;height:10px;border-radius:50%;flex:none;}
+  .seat-dot.red{background:#e2503f;}
+  .seat-dot.black{background:#0d0f13;box-shadow:inset 0 0 0 1px #aab4c3;}
+  .seat-name{letter-spacing:.08em;}
+  .you-tag{font-size:10px;padding:1px 6px;border-radius:99px;background:rgba(217,164,65,.2);color:#e7c377;}
+  .seat-state{margin-left:auto;font-size:11px;color:#6f7a89;}
+  .seat-state.on{color:#6ed3a3;}
+  .seat-state.off{color:#e0a24a;}
+  .log-card{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    flex:1 1 auto;
+    min-height:220px;
+    padding:14px 16px;
+  }
+  .log-head,.log-row{
+    display:grid;
+    grid-template-columns:38px 1fr 1fr;
+    gap:8px;
+    align-items:center;
+  }
+  .log-head{
+    padding:0 4px 6px;
+    border-bottom:1px solid rgba(255,255,255,.07);
+    font-size:11px;
+    letter-spacing:.12em;
+    color:#7f8a99;
+  }
+  .log-body{
+    flex:1;
+    max-height:300px;
+    overflow-y:auto;
+    padding-right:2px;
+  }
+  .log-body::-webkit-scrollbar{width:6px;}
+  .log-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:3px;}
+  .log-row{padding:6px 4px;border-radius:8px;font-size:14px;}
+  .log-row:nth-child(odd){background:rgba(255,255,255,.035);}
+  .log-row .idx{
+    font-size:11px;
+    color:#6f7a89;
+    text-align:center;
+    font-variant-numeric:tabular-nums;
+  }
+  .mv.red{color:#f39a8c;}
+  .mv.black{color:#c6d0dd;}
+  .log-empty{color:#6f7a89;font-size:13px;padding:18px 4px;text-align:center;}
+  .note{font-size:11.5px;color:#76818f;line-height:1.7;margin:0 2px;}
+  [hidden]{display:none !important;}
+  @media (max-width:920px){
+    body{padding:20px 14px 32px;}
+    .head{align-items:flex-start;}
+    .game{flex-direction:column;}
+    .board-wrap{width:100%;}
+    .panel{width:100%;min-width:0;}
+    .log-body{max-height:240px;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <div>
+      <h1>中国象棋</h1>
+      <p id="subtitle">本地双人对弈 · 无需联网</p>
+    </div>
+    <div class="tabs" role="tablist" aria-label="对战模式">
+      <button class="tab active" type="button" data-mode="local" role="tab" aria-selected="true">本地双人</button>
+      <button class="tab" type="button" data-mode="online" role="tab" aria-selected="false">联机对战</button>
+    </div>
+  </header>
+  <p class="mode-note" id="modeNote" hidden>联机模式需要部署到 Cloudflare Workers 后通过线上地址访问；直接双击打开文件只能本地对战。</p>
+  <main class="game">
+    <div class="board-wrap">
+      <canvas id="board" aria-label="中国象棋棋盘"></canvas>
+    </div>
+    <aside class="panel">
+      <section class="card">
+        <div class="turn-line">
+          <span class="dot red" id="turnDot"></span>
+          <span class="turn-text red" id="turnText">红方走棋</span>
+        </div>
+        <p class="hint" id="hintText">点击棋子选择，再点击落点</p>
+      </section>
+      <section class="card online-card" id="onlineCard" hidden>
+        <div id="setupPanel">
+          <div class="online-title">联机对战</div>
+          <div class="join-row">
+            <input id="roomInput" maxlength="8" placeholder="输入 4-8 位房间码" autocomplete="off" spellcheck="false" aria-label="房间码">
+            <button id="joinBtn" class="primary" type="button">加入</button>
+          </div>
+          <div class="setup-divider">或</div>
+          <button id="createBtn" class="primary wide" type="button">创建新房间</button>
+          <p class="online-msg" id="setupMsg"></p>
+        </div>
+        <div id="activePanel" hidden>
+          <div class="room-line">
+            <span class="label">房间码</span>
+            <span class="room-code" id="roomCode">—</span>
+            <button id="copyBtn" class="small copy-btn" type="button">复制</button>
+          </div>
+          <div class="conn-line">
+            <span class="conn-dot" id="connDot"></span>
+            <span id="connBadge">连接中…</span>
+          </div>
+          <div class="seats" id="seats"></div>
+          <p class="online-msg" id="onlineMsg"></p>
+          <button id="leaveBtn" class="wide" type="button">离开房间</button>
+        </div>
+      </section>
+      <div class="actions" id="actionsRow">
+        <button id="undoBtn" type="button">悔棋</button>
+        <button id="restartBtn" type="button">重新开始</button>
+      </div>
+      <section class="card log-card">
+        <div class="log-head"><span>回合</span><span>红方</span><span>黑方</span></div>
+        <div class="log-body" id="logBody">
+          <div class="log-empty">暂无着法</div>
+        </div>
+      </section>
+      <p class="note" id="noteText">规则：将死或困毙均判负；将帅不可在同一直线上照面。点击棋子后，绿点表示可走位置，红圈表示可吃子。</p>
+    </aside>
+  </main>
+</div>
+<script src="rules.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

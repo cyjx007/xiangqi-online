@@ -1,0 +1,13 @@
+worker.js
+wrangler.toml
+.assetsignore
+package.json
+package-lock.json
+node_modules/
+.wrangler/
+.git/
+.dev.vars
+.env
+.env.*
+.xq-*
+*.md

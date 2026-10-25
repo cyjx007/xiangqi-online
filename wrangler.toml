@@ -1,0 +1,15 @@
+name = "xiangqi"
+main = "worker.js"
+compatibility_date = "2025-09-01"
+
+[assets]
+directory = "."
+binding = "ASSETS"
+
+[[durable_objects.bindings]]
+name = "ROOMS"
+class_name = "GameRoom"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["GameRoom"]
