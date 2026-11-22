@@ -1,5 +1,6 @@
 # Xiangqi Online
 
+[![ci](https://github.com/cyjx007/xiangqi-online/actions/workflows/ci.yml/badge.svg)](https://github.com/cyjx007/xiangqi-online/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 **Two-player Chinese chess on Cloudflare Workers. Create a room and play — no sign-up.**

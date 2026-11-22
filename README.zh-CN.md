@@ -1,5 +1,6 @@
 # 中国象棋 · 联机对战
 
+[![ci](https://github.com/cyjx007/xiangqi-online/actions/workflows/ci.yml/badge.svg)](https://github.com/cyjx007/xiangqi-online/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 **跑在 Cloudflare Workers 上的双人中国象棋，开房间就能下，不需要注册。**
